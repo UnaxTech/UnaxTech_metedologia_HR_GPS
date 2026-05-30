@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metodologia testów - UnaxTech</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#0a0f1a;color:#f1f5f9;font-family:'Roboto',sans-serif;min-height:100vh;padding:48px 24px;line-height:1.7;}
+  .wrap{max-width:860px;margin:0 auto;}
+
+  /* HEADER */
+  .logo{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.25);font-family:'Roboto Mono',monospace;margin-bottom:18px;}
+  h1{font-size:clamp(26px,4vw,42px);font-weight:900;letter-spacing:-1px;line-height:1.1;margin-bottom:10px;}
+  .subtitle{font-size:15px;color:rgba(255,255,255,.4);margin-bottom:24px;}
+  .wip-banner{background:rgba(217,119,6,.12);border:1px solid rgba(217,119,6,.35);border-radius:10px;padding:12px 18px;margin-bottom:32px;font-size:13px;color:#fbbf24;display:flex;align-items:center;gap:10px;}
+
+  /* SPIS TREŚCI */
+  .toc{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:24px 28px;margin-bottom:40px;}
+  .toc-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.25);font-family:'Roboto Mono',monospace;margin-bottom:16px;}
+  .toc-list{list-style:none;display:flex;flex-direction:column;gap:4px;}
+  .toc-item{display:flex;align-items:baseline;gap:10px;}
+  .toc-num{font-size:11px;font-family:'Roboto Mono',monospace;color:rgba(255,255,255,.2);min-width:20px;}
+  .toc-link{font-size:14px;color:rgba(255,255,255,.55);text-decoration:none;transition:color .15s;}
+  .toc-link:hover{color:#f1f5f9;}
+  .toc-sub{padding-left:30px;margin-top:2px;}
+  .toc-sub .toc-link{font-size:13px;color:rgba(255,255,255,.35);}
+  .toc-sub .toc-link:hover{color:rgba(255,255,255,.7);}
+
+  /* REFERENCJE */
+  .ref-bar{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:36px;}
+  @media(max-width:600px){.ref-bar{grid-template-columns:1fr;}}
+  .ref-card{background:rgba(255,255,255,.04);border-radius:12px;padding:16px 20px;border:1px solid rgba(255,255,255,.08);}
+  .ref-card-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.25);font-family:'Roboto Mono',monospace;margin-bottom:6px;}
+  .ref-card-name{font-size:15px;font-weight:700;color:rgba(255,255,255,.9);margin-bottom:4px;}
+  .ref-card-desc{font-size:12px;color:rgba(255,255,255,.4);line-height:1.5;}
+
+  /* SEKCJE */
+  .separator{height:1px;background:rgba(255,255,255,.07);margin:44px 0;}
+  .section-anchor{display:block;height:0;visibility:hidden;margin-top:-80px;padding-top:80px;}
+  .section-label{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:14px;font-family:'Roboto Mono',monospace;}
+  h2{font-size:22px;font-weight:900;letter-spacing:-0.5px;margin-bottom:6px;}
+  h3{font-size:16px;font-weight:700;margin-bottom:10px;margin-top:28px;}
+  p{font-size:14px;color:rgba(255,255,255,.55);line-height:1.8;margin-bottom:12px;}
+  p strong{color:rgba(255,255,255,.85);}
+
+  /* BLOKI INFO */
+  .info-box{background:rgba(255,255,255,.04);border-radius:12px;padding:18px 22px;border:1px solid rgba(255,255,255,.07);margin-bottom:16px;}
+  .info-box p{margin-bottom:6px;}
+  .info-box p:last-child{margin-bottom:0;}
+  .info-box.green{border-left:3px solid #16a34a;}
+  .info-box.blue{border-left:3px solid #2563eb;}
+  .info-box.amber{border-left:3px solid #d97706;}
+  .info-box.purple{border-left:3px solid #7c3aed;}
+
+  /* SKŁADNIKI */
+  .components{display:grid;gap:10px;margin-bottom:24px;}
+  .comp-row{display:grid;grid-template-columns:20px 1fr auto;align-items:start;gap:12px;padding:12px 16px;background:rgba(255,255,255,.04);border-radius:10px;border:1px solid rgba(255,255,255,.06);}
+  .comp-dot{width:10px;height:10px;border-radius:50%;margin-top:4px;flex-shrink:0;}
+  .comp-name{font-size:14px;font-weight:700;color:rgba(255,255,255,.9);margin-bottom:3px;}
+  .comp-desc{font-size:12px;color:rgba(255,255,255,.4);line-height:1.5;}
+  .comp-pts{font-size:15px;font-weight:900;font-family:'Roboto Mono',monospace;white-space:nowrap;}
+
+  /* TABELE */
+  .thresholds{border-collapse:collapse;width:100%;margin-bottom:16px;border-radius:8px;overflow:hidden;}
+  .thresholds thead tr{background:rgba(255,255,255,.06);}
+  .thresholds th{padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.35);text-align:left;}
+  .thresholds td{padding:8px 14px;font-size:13px;color:rgba(255,255,255,.65);border-bottom:1px solid rgba(255,255,255,.05);}
+  .thresholds td:first-child{font-family:'Roboto Mono',monospace;color:rgba(255,255,255,.85);font-weight:700;}
+  .thresholds td:nth-child(2){color:#16a34a;font-weight:700;font-family:'Roboto Mono',monospace;}
+  .thresholds tr:last-child td{border-bottom:none;}
+
+  /* SKALA OCEN */
+  .grades{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+  .grade{flex:1;min-width:100px;background:rgba(255,255,255,.04);border-radius:10px;padding:14px;text-align:center;border:1px solid rgba(255,255,255,.07);}
+  .grade-letter{font-size:26px;font-weight:900;font-family:'Roboto Mono',monospace;margin-bottom:4px;}
+  .grade-range{font-size:12px;font-family:'Roboto Mono',monospace;color:rgba(255,255,255,.45);margin-bottom:3px;}
+  .grade-label{font-size:11px;color:rgba(255,255,255,.3);}
+
+  /* KOREKTY */
+  .correction{display:flex;align-items:flex-start;gap:14px;padding:14px 16px;background:rgba(255,255,255,.04);border-radius:10px;border:1px solid rgba(255,255,255,.07);margin-bottom:10px;}
+  .correction-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+  .correction-title{font-size:14px;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:4px;}
+  .correction-desc{font-size:13px;color:rgba(255,255,255,.45);line-height:1.6;}
+
+  /* BONUS LINIOWY */
+  .linear-bonus{display:flex;flex-direction:column;gap:0;margin-bottom:16px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.07);}
+  .lb-row{display:flex;align-items:center;gap:12px;padding:9px 14px;border-bottom:1px solid rgba(255,255,255,.05);}
+  .lb-row:last-child{border-bottom:none;}
+  .lb-time{font-size:12px;font-weight:700;font-family:'Roboto Mono',monospace;color:rgba(255,255,255,.75);min-width:70px;}
+  .lb-bar-wrap{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;}
+  .lb-bar{height:100%;border-radius:3px;background:#16a34a;}
+  .lb-pts{font-size:12px;font-weight:700;font-family:'Roboto Mono',monospace;color:#16a34a;min-width:60px;text-align:right;}
+
+  /* FOOTER */
+  .back-to-top{display:inline-block;margin-top:8px;font-size:12px;color:rgba(255,255,255,.2);text-decoration:none;}
+  .back-to-top:hover{color:rgba(255,255,255,.5);}
+  .footer{margin-top:60px;padding-top:24px;border-top:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+  .footer-logo{font-size:13px;font-weight:700;color:rgba(255,255,255,.25);}
+  .footer-note{font-size:12px;color:rgba(255,255,255,.18);}
+
+  @media(max-width:600px){
+    .comp-row{grid-template-columns:20px 1fr auto;}
+    .grades{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="top">
+
+  <div class="logo">UnaxTech - Metodologia testów</div>
+  <h1>Jak testuję zegarki sportowe?</h1>
+  <p class="subtitle">Pełny opis metodologii: dane źródłowe, przetwarzanie, ocena.</p>
+
+  <div class="wip-banner">
+    ⚠️ <span>Dokument w trakcie opracowywania. Metodologia jest aktywnie rozwijana i może się zmieniać, szczególnie w zakresie wag, progów i korekt rankingowych.</span>
+  </div>
+
+  <!-- SPIS TREŚCI -->
+  <nav class="toc">
+    <div class="toc-title">Spis treści</div>
+    <ul class="toc-list">
+      <li class="toc-item"><span class="toc-num">1</span><a class="toc-link" href="#referencje">Urządzenia referencyjne</a></li>
+      <li class="toc-item"><span class="toc-num">2</span><a class="toc-link" href="#ogolne">Założenia ogólne</a></li>
+      <li class="toc-item"><span class="toc-num">3</span><a class="toc-link" href="#hr">Ranking HR - pomiar tętna</a></li>
+      <ul class="toc-sub">
+        <li class="toc-item"><span class="toc-num"></span><a class="toc-link" href="#hr-sync">Synchronizacja i ograniczenia metody</a></li>
+        <li class="toc-item"><span class="toc-num"></span><a class="toc-link" href="#hr-metryki">Metryki jakości</a></li>
+        <li class="toc-item"><span class="toc-num"></span><a class="toc-link" href="#hr-quality">Quality Score</a></li>
+        <li class="toc-item"><span class="toc-num"></span><a class="toc-link" href="#hr-ranking">Wynik rankingowy i korekty</a></li>
+      </ul>
+      <li class="toc-item"><span class="toc-num">4</span><a class="toc-link" href="#gps">Ranking GPS - ślad i dystans</a></li>
+      <ul class="toc-sub">
+        <li class="toc-item"><span class="toc-num"></span><a class="toc-link" href="#gps-skladniki">Składniki oceny</a></li>
+        <li class="toc-item"><span class="toc-num"></span><a class="toc-link" href="#gps-progi">Progi punktowe</a></li>
+        <li class="toc-item"><span class="toc-num"></span><a class="toc-link" href="#gps-korekta">Korekta rankingowa</a></li>
+      </ul>
+      <li class="toc-item"><span class="toc-num">5</span><a class="toc-link" href="#wspolne">Wspólne zasady</a></li>
+    </ul>
+  </nav>
+
+  <!-- 1. REFERENCJE -->
+  <span class="section-anchor" id="referencje"></span>
+  <div class="section-label">1 - Urządzenia referencyjne</div>
+  <div class="ref-bar">
+    <div class="ref-card">
+      <div class="ref-card-label">Referencja HR</div>
+      <div class="ref-card-name">Polar H10</div>
+      <div class="ref-card-desc">Pas piersiowy potwierdzony w wielu niezależnych badaniach naukowych jako bardzo dobry czujnik tętna. Niezależny od ekosystemu testowanych zegarków.</div>
+    </div>
+    <div class="ref-card">
+      <div class="ref-card-label">Referencja GPS</div>
+      <div class="ref-card-name">Garmin Edge 540</div>
+      <div class="ref-card-desc">Dedykowany komputer rowerowy z dwuzakresowym GPS (multi-band GNSS). Montowany na kierownicy roweru przez cały test.</div>
+    </div>
+  </div>
+  <a class="back-to-top" href="#top">↑ Wróć na górę</a>
+
+  <div class="separator"></div>
+
+  <!-- 2. OGÓLNE -->
+  <span class="section-anchor" id="ogolne"></span>
+  <div class="section-label">2 - Założenia ogólne</div>
+  <h2>Punkt wyjścia</h2>
+
+  <p>Wszystkie testy do rankingu prowadzę na rowerze. Czasem pokazuję też wyniki z biegania, ale nie wchodzą one do rankingu. Jazda rowerem ogranicza ruch nadgarstka względem biegania czy treningu siłowego, co przekłada się na wyniki - są one zapewne lepsze niż wyniki z aktywności, gdzie zegarek bardziej się przesuwa lub zmienia pozycję. Warto mieć to na uwadze przy porównywaniu z innymi testami.</p>
+
+  <p>Zegarek jest zawsze zakładany <strong>zgodnie z zaleceniem producenta</strong>, czyli za kością nadgarstka, z odpowiednim dociskiem. Niespełnienie tego warunku jest jednym z najczęstszych powodów złych wyników optycznego sensora tętna.</p>
+
+  <p>Mimo że większość metryk to czyste dane liczbowe, końcowy wynik zawsze niesie pewien element subiektywny: warunki testu, wybór trasy, moment startu urządzeń. Dlatego każde urządzenie testowane jest z tym samym zestawem referencyjnym i w możliwie tych samych warunkach.</p>
+
+  <div class="info-box amber">
+    <p><strong>Ważne zastrzeżenie:</strong> Wyniki dotyczą konkretnego egzemplarza, konkretnego firmware i konkretnych warunków. Ten sam model przy innym firmware, innym nadgarstku lub innej trasie może dać inny wynik. Traktuję wyniki jako rzetelną próbkę, nie absolutny werdykt.</p>
+  </div>
+  <a class="back-to-top" href="#top">↑ Wróć na górę</a>
+
+  <div class="separator"></div>
+
+  <!-- 3. HR -->
+  <span class="section-anchor" id="hr"></span>
+  <div class="section-label">3 - Ranking HR</div>
+  <h2>Ocena pomiaru tętna</h2>
+
+  <p><strong>Polar H10</strong> to pas piersiowy potwierdzony w wielu niezależnych badaniach jako bardzo dokładny czujnik tętna. Jest niezależny od ekosystemu testowanych zegarków, co wyklucza potencjalny konflikt interesów. Dane z pasa i zegarka rejestrowane są równolegle od startu do końca treningu.</p>
+
+  <span class="section-anchor" id="hr-sync"></span>
+  <h3>Synchronizacja i ograniczenia metody</h3>
+
+  <p>Dane wczytywane są z plików FIT lub CSV. Ponieważ oba urządzenia są uruchamiane ręcznie, między ich startami zawsze istnieje niewielka rozbieżność czasowa. Program automatycznie wyznacza <strong>optymalny lag</strong> metodą korelacji krzyżowej (zakres ±30 s, krok 1 s) i wyrównuje oś czasu. Synchronizacja koryguje nieunikniony błąd ludzkiego startu - nie maskuje rzeczywistych opóźnień sensora.</p>
+
+  <p>Po wyrównaniu dane interpolowane są do wspólnej osi 1 Hz (jeden pomiar na sekundę). Luki w sygnale powyżej 5 sekund <strong>nie są interpolowane</strong> - zostają wykluczone z obliczeń. Dzięki temu przerwa w nagraniu nie zaburza metryk.</p>
+
+  <div class="info-box green">
+    <p><strong>Co tak naprawdę mierzę:</strong> Nie sprawdzam czy zegarek pokazywał tę samą liczbę co pas w tym samym momencie zegara. Sprawdzam czy sensor <strong>potrafi poprawnie mierzyć tętno</strong>. Synchronizacja wyrównuje nieunikniony błąd startu (nie da się kliknąć dwóch urządzeń idealnie jednocześnie), dzięki czemu R i MAE mówią o prawdziwej zdolności sensora. Oddzielną metryką jest LAG, który mówi o tym jak szybko zegarek reaguje na zmianę tętna w codziennym użyciu.</p>
+  </div>
+
+  <div class="info-box amber">
+    <p><strong>Ograniczenie metody - lagu nie da się w pełni rozdzielić:</strong> Zmierzony LAG zawiera dwa elementy naraz: błąd ludzkiego startu i rzeczywiste opóźnienie sensora optycznego. Synchronizacja koryguje oba jednocześnie - nie da się z samych danych oddzielić jednego od drugiego. Jeśli LAG = 8s, może to być 2s błąd startu + 6s sensor, albo 7s start + 1s sensor.</p>
+    <p style="margin-top:8px;">Dodatkowo synchronizacja szuka <strong>jednego globalnego lagu</strong> dla całego treningu. Tymczasem tanie zegarki mogą mieć lag 3s w spoczynku i 15s przy sprincie. Synchronizacja znajdzie kompromis ok. 8s i wykres nadal będzie miejscami rozjechany - nie jest to błąd metody, to cecha sensora optycznego zwana "floating lag".</p>
+    <p style="margin-top:8px;">Mimo tych ograniczeń metryki R i MAE po synchronizacji są <strong>najlepszym dostępnym przybliżeniem zdolności sensora</strong> bez sprzętu laboratoryjnego. Żaden konsumencki test nie wyeliminuje tych zmiennych w 100% - ważne jest żeby je rozumieć, a nie ignorować.</p>
+  </div>
+
+  <div class="info-box amber">
+    <p><strong>Ocena dotyczy konkretnego treningu, nie zegarka w ogóle:</strong> Optyczny sensor jest wrażliwy na pozycję zegarka na nadgarstku, kolor skóry i owłosienie, temperaturę (w zimnie gorsze wyniki), typ ruchu (rower daje lepsze wyniki niż bieganie) i pocenie się. Wynik mówi: "w tym teście zegarek wypadł tak" - nie "zegarek jest taki".</p>
+  </div>
+
+  <div class="info-box amber">
+    <p><strong>"Świetna dokładność" przy HIIT nie oznacza ideału:</strong> Progi ocen są inne dla treningu spokojnego i interwałowego. "Świetna" przy HIIT oznacza MAE ≤ 5 bpm - to nadal 5 bpm błędu. W kontekście stref tętna (strefa 3 vs strefa 4 to różnica ok. 15 bpm) jest to znaczący błąd. Czytaj wyniki jako "świetna jak na interwały" - nie "świetna ogólnie".</p>
+  </div>
+
+  <div class="info-box blue">
+    <p><strong>Usuwanie wartości odstających:</strong> Przed obliczeniem metryk usuwane są pary pomiarów, w których tętno któregokolwiek urządzenia jest poniżej 40 lub powyżej 200 bpm. Usuwanie jest parowane: jeśli jeden punkt odpada, drugi z tej samej sekundy też. Zachowuje to spójność porównania sekunda-do-sekundy.</p>
+  </div>
+
+  <span class="section-anchor" id="hr-metryki"></span>
+  <h3>Metryki jakości</h3>
+
+  <div class="components">
+    <div class="comp-row">
+      <div class="comp-dot" style="background:#2563eb;margin-top:5px;"></div>
+      <div><div class="comp-name">MAE - Średni błąd bezwzględny</div><div class="comp-desc">Średnia arytmetyczna wartości bezwzględnych różnic między zegarkiem a pasem, sekunda po sekundzie. Odpowiada na pytanie: o ile bpm zegarek myli się przeciętnie. Najbardziej czytelna metryka dla niespecjalistów.</div></div>
+      <div class="comp-pts" style="color:#2563eb;">bpm</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-dot" style="background:#7c3aed;margin-top:5px;"></div>
+      <div><div class="comp-name">RMSE - Błąd średniokwadratowy</div><div class="comp-desc">Podobny do MAE, ale karci mocniej za duże jednorazowe skoki błędu. Zegarek z niskim MAE i wysokim RMSE myli się rzadko, ale kiedy już to robi - drastycznie. Wyłapuje niestabilne sensory.</div></div>
+      <div class="comp-pts" style="color:#7c3aed;">bpm</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-dot" style="background:#16a34a;margin-top:5px;"></div>
+      <div><div class="comp-name">Korelacja Pearsona (R)</div><div class="comp-desc">Mierzy czy zegarek reaguje na zmiany tętna tak samo jak pas. R = 1.0 to idealna synchronizacja zmian. Zegarek który przez cały trening pokazuje stałą wartość może mieć niskie MAE przy sprzyjającym tętnie, ale R bliskie zera. Liczona po synchronizacji.</div></div>
+      <div class="comp-pts" style="color:#16a34a;">0-1</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-dot" style="background:#d97706;margin-top:5px;"></div>
+      <div><div class="comp-name">Bias - odchylenie systematyczne</div><div class="comp-desc">Średnia różnica (zegarek minus referencja) z zachowaniem znaku. Dodatni bias = zegarek zawyża, ujemny = zaniża. Stałe odchylenie w jednym kierunku jest często gorsze w praktyce niż losowy błąd tej samej wielkości.</div></div>
+      <div class="comp-pts" style="color:#d97706;">bpm</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-dot" style="background:#d97706;margin-top:5px;"></div>
+      <div><div class="comp-name">Precision ±3 / ±5 / ±10 bpm</div><div class="comp-desc">Procent czasu, gdy różnica między zegarkiem a pasem mieściła się w danym oknie. Precision ±5 bpm = 95% oznacza, że przez 95% treningu błąd nie przekraczał 5 uderzeń. Przekłada się bezpośrednio na użyteczność strefową.</div></div>
+      <div class="comp-pts" style="color:#d97706;">%</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-dot" style="background:#0891b2;margin-top:5px;"></div>
+      <div><div class="comp-name">BA Coverage - zgodność Bland-Altman</div><div class="comp-desc">Metoda kliniczna oceny zgodności dwóch urządzeń pomiarowych. Procent par pomiarów mieszczących się w granicach ±1.96 odchylenia standardowego błędów. Sprawdza czy rozkład błędów jest losowy (dobrze) czy systematyczny (źle).</div></div>
+      <div class="comp-pts" style="color:#0891b2;">%</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-dot" style="background:#94a3b8;margin-top:5px;"></div>
+      <div><div class="comp-name">MAPE - procentowy błąd średni</div><div class="comp-desc">Błąd wyrażony jako procent wartości referencji. Pozwala porównywać testy przy różnych zakresach tętna. Metryka dodatkowa, nie wchodzi do wyniku rankingowego.</div></div>
+      <div class="comp-pts" style="color:#94a3b8;">%</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-dot" style="background:#94a3b8;margin-top:5px;"></div>
+      <div><div class="comp-name">Lag - opóźnienie sensora</div><div class="comp-desc">Czas w sekundach, o jaki zegarek opóźnia wskazanie względem pasa przy gwałtownych zmianach tętna. Mierzony jako przesunięcie dające maksymalną korelację krzyżową. Osobno mierzony dla wzrostu i dla spadku tętna.</div></div>
+      <div class="comp-pts" style="color:#94a3b8;">s</div>
+    </div>
+  </div>
+
+  <span class="section-anchor" id="hr-quality"></span>
+  <h3>Quality Score - wynik analizy (0-100)</h3>
+
+  <p>Quality Score to ważona suma znormalizowanych metryk obliczana przez narzędzie analityczne. Jest to wynik pojedynczej sesji, nie wynik rankingowy. Progi są różne dla treningów spokojnych (steady) i intensywnych (HIIT), bo wymagania wobec sensora optycznego różnią się w zależności od charakteru wysiłku.</p>
+
+  <div class="info-box blue">
+    <p><strong>Składniki Quality Score i wagi:</strong></p>
+    <p>MAE 20% - Korelacja R 20% - Precision ±5 bpm 20% - Stability (odporność na skoki >20 bpm) 15% - BA Coverage 10% - Bias 10% - Zgodność średnich HR 5%</p>
+    <p style="margin-top:8px;">Korelacja R normalizowana jest z dolnym progiem 0.3: wartości poniżej traktowane są jako bezwartościowe. Stability karze za punkty z błędem powyżej 20 bpm: każdy 1% takich punktów to -10% tego składnika.</p>
+  </div>
+
+  <div class="grades">
+    <div class="grade"><div class="grade-letter" style="color:#16a34a;">A</div><div class="grade-range">≥ 95 pkt</div><div class="grade-label">Doskonały</div></div>
+    <div class="grade"><div class="grade-letter" style="color:#2563eb;">B</div><div class="grade-range">93-94 pkt</div><div class="grade-label">Dobry</div></div>
+    <div class="grade"><div class="grade-letter" style="color:#d97706;">C</div><div class="grade-range">91-92 pkt</div><div class="grade-label">Akceptowalny</div></div>
+    <div class="grade"><div class="grade-letter" style="color:#dc2626;">D</div><div class="grade-range">0-90 pkt</div><div class="grade-label">Słaby</div></div>
+  </div>
+
+  <span class="section-anchor" id="hr-ranking"></span>
+  <h3>Wynik rankingowy i korekty</h3>
+
+  <p>Ranking HR to osobna ocena od Quality Score. Każdy zegarek dostaje wynik rankingowy liczony według stałego wzoru z uproszczonymi wagami pod kątem czytelności dla widza.</p>
+
+  <div class="info-box green">
+    <p><strong>Składniki wyniku rankingowego i wagi:</strong></p>
+    <p>MAE <strong>35%</strong> - RMSE <strong>20%</strong> - Korelacja R <strong>20%</strong> - Precision ±5 bpm <strong>15%</strong> - BA Coverage <strong>10%</strong></p>
+  </div>
+
+  <div class="correction">
+    <div class="correction-icon">⏱</div>
+    <div>
+      <div class="correction-title">Kara za rzadkie próbkowanie</div>
+      <div class="correction-desc">Zegarki zapisujące tętno rzadziej niż co 2 sekundy mają mniej danych. Kara: co 5 s = -0.5 pkt - co 10 s = -1.0 pkt - co 15 s = -1.5 pkt - co 30 s = -2.5 pkt. Zegarki próbkujące co 1-2 s nie są karane.</div>
+    </div>
+  </div>
+
+  <div class="correction">
+    <div class="correction-icon">⏳</div>
+    <div>
+      <div class="correction-title">Bonus za długość testu (liniowy, maks. +0.5 pkt)</div>
+      <div class="correction-desc">Dłuższy trening to trudniejszy egzamin: więcej zmian intensywności, zmęczenie, zmienne warunki skórne. Bonus rośnie płynnie bez twardych progów. Poniżej 60 min: 0 pkt. Powyżej 3h: maksimum +0.5 pkt. Zegarki testowane krócej niż 60 min oznaczone są symbolem ⚠️.</div>
+    </div>
+  </div>
+
+  <div class="linear-bonus">
+    <div class="lb-row"><span class="lb-time">60 min</span><div class="lb-bar-wrap"><div class="lb-bar" style="width:0%"></div></div><span class="lb-pts">+0.00 pkt</span></div>
+    <div class="lb-row"><span class="lb-time">75 min</span><div class="lb-bar-wrap"><div class="lb-bar" style="width:12%"></div></div><span class="lb-pts">+0.06 pkt</span></div>
+    <div class="lb-row"><span class="lb-time">90 min</span><div class="lb-bar-wrap"><div class="lb-bar" style="width:25%"></div></div><span class="lb-pts">+0.13 pkt</span></div>
+    <div class="lb-row"><span class="lb-time">2h</span><div class="lb-bar-wrap"><div class="lb-bar" style="width:50%"></div></div><span class="lb-pts">+0.25 pkt</span></div>
+    <div class="lb-row"><span class="lb-time">2h 30min</span><div class="lb-bar-wrap"><div class="lb-bar" style="width:62%"></div></div><span class="lb-pts">+0.31 pkt</span></div>
+    <div class="lb-row"><span class="lb-time">3h+</span><div class="lb-bar-wrap"><div class="lb-bar" style="width:100%"></div></div><span class="lb-pts">+0.50 pkt</span></div>
+  </div>
+
+  <div class="info-box amber">
+    <p><strong>Skala ocen rankingu HR</strong> jest taka sama jak Quality Score: A ≥ 95, B 93-94, C 91-92, D ≤ 90. Przy identycznym wyniku rankingowym o kolejności decyduje bonus za długość testu.</p>
+  </div>
+  <a class="back-to-top" href="#top">↑ Wróć na górę</a>
+
+  <div class="separator"></div>
+
+  <!-- 4. GPS -->
+  <span class="section-anchor" id="gps"></span>
+  <div class="section-label">4 - Ranking GPS</div>
+  <h2>Ocena GPS</h2>
+
+  <p><strong>Garmin Edge 540</strong> to dedykowany komputer rowerowy z dwuzakresowym GPS (multi-band GNSS: GPS + GLONASS + Galileo) i barometrem. Montowany na kierownicy przez cały czas trwania testu. Montaż na kierownicy eliminuje błędy pozycjonowania wynikające z ruchu nadgarstka. Jako niezależny komputer rowerowy minimalizuje ryzyko zarzutu stronniczości przy testowaniu zegarków Garmin.</p>
+
+  <p>Testy prowadzę na rowerze. Trasy są w większości powtarzalne, choć ich długość i warunki mogą się różnić między testami - co ma wpływ na wynik i jest zaznaczane przy każdym teście.</p>
+
+  <p>Dane GPS wczytywane są z plików GPX. Oba pliki synchronizowane są czasowo na wspólną oś 1 Hz. Wysokość jest wygładzana przed obliczeniem przewyższenia: surowy sygnał barometru zawiera szum, który bez wygładzenia drastycznie zawyża sumę podejść. Luki w sygnale GPS powyżej 10 sekund nie są interpolowane.</p>
+
+  <span class="section-anchor" id="gps-skladniki"></span>
+  <h3>Składniki oceny GPS</h3>
+
+  <div class="components">
+    <div class="comp-row">
+      <div class="comp-dot" style="background:#dc2626;margin-top:5px;"></div>
+      <div><div class="comp-name">Dokładność dystansu - 35 pkt</div><div class="comp-desc">Błąd procentowy całkowitego dystansu 3D zegarku względem Garmina. Dystans 3D liczony jest na wygładzonej wysokości, żeby szum barometru nie zawyżał wyniku. Najważniejszy składnik: kolarze i biegacze pytają o dystans w pierwszej kolejności.</div></div>
+      <div class="comp-pts" style="color:#dc2626;">35 pkt</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-dot" style="background:#059669;margin-top:5px;"></div>
+      <div><div class="comp-name">Wierność śladu GPS - 25 pkt</div><div class="comp-desc">Procent punktów trasy testowego zegarka oddalonych o więcej niż 10 metrów od trasy Garmina. Sprawdza czy zegarek gubi sygnał w alejach drzew, ucina zakręty lub skraca trasy. Zegarek z idealnym dystansem ale błędnym śladem jest bezużyteczny do nawigacji.</div></div>
+      <div class="comp-pts" style="color:#059669;">25 pkt</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-dot" style="background:#2563eb;margin-top:5px;"></div>
+      <div><div class="comp-name">Stabilność wysokości - 25 pkt</div><div class="comp-desc">Szum sygnału wysokości wyrażony jako procent dystansu. Mierzony jako różnica między dystansem 3D na surowej i wygładzonej wysokości: im większa, tym głośniejszy szum barometru. Zegarki reklamujące się dokładnością przewyższenia są tu szczególnie weryfikowane.</div></div>
+      <div class="comp-pts" style="color:#2563eb;">25 pkt</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-dot" style="background:#7c3aed;margin-top:5px;"></div>
+      <div><div class="comp-name">Spójność tempa per km - 15 pkt</div><div class="comp-desc">Odchylenie standardowe różnic czasu między zegarkiem a Garminem w każdym kilometrze trasy. Zegarek może mieć idealny łączny dystans, ale tempo pulsować: 1 km za szybko, następny za wolno.</div></div>
+      <div class="comp-pts" style="color:#7c3aed;">15 pkt</div>
+    </div>
+  </div>
+
+  <span class="section-anchor" id="gps-progi"></span>
+  <h3>Progi punktowe</h3>
+  <p>Między progami stosowana jest interpolacja liniowa: nie ma twardych skoków. Progi są celowo wymagające: realny top zegarek osiąga 88-95 pkt, nie 100.</p>
+
+  <table class="thresholds">
+    <thead><tr><th>Błąd dystansu</th><th>Punkty</th><th>Ocena</th></tr></thead>
+    <tbody>
+      <tr><td>0.00-0.10%</td><td>35→33</td><td>Praktycznie ideał</td></tr>
+      <tr><td>0.10-0.30%</td><td>33→29</td><td>Bardzo dobry</td></tr>
+      <tr><td>0.30-0.75%</td><td>29→20</td><td>Dobry</td></tr>
+      <tr><td>0.75-1.50%</td><td>20→8</td><td>Wyraźny błąd</td></tr>
+      <tr><td>1.50-2.50%</td><td>8→0</td><td>Słaby</td></tr>
+      <tr><td>>2.50%</td><td>0</td><td>Niegodny zaufania</td></tr>
+    </tbody>
+  </table>
+
+  <table class="thresholds">
+    <thead><tr><th>Punkty >10 m od trasy</th><th>Punkty</th><th>Ocena</th></tr></thead>
+    <tbody>
+      <tr><td>0-1%</td><td>25→22</td><td>Śledzi trasę wzorowo</td></tr>
+      <tr><td>1-3%</td><td>22→15</td><td>Drobne odchylenia</td></tr>
+      <tr><td>3-8%</td><td>15→6</td><td>Widoczne błędy śladu</td></tr>
+      <tr><td>8-15%</td><td>6→0</td><td>Zegarek skraca trasy</td></tr>
+    </tbody>
+  </table>
+
+  <table class="thresholds">
+    <thead><tr><th>Szum wysokości (% dystansu)</th><th>Punkty</th><th>Ocena</th></tr></thead>
+    <tbody>
+      <tr><td>0.00-0.10%</td><td>25→22</td><td>Barometr cichy</td></tr>
+      <tr><td>0.10-0.30%</td><td>22→15</td><td>Małe zakłócenia</td></tr>
+      <tr><td>0.30-0.80%</td><td>15→6</td><td>Szum widoczny</td></tr>
+      <tr><td>>0.80%</td><td>6→0</td><td>Barometr skacze, przewyższenie zawyżone</td></tr>
+    </tbody>
+  </table>
+
+  <table class="thresholds">
+    <thead><tr><th>Odchylenie std. splitów</th><th>Punkty</th><th>Ocena</th></tr></thead>
+    <tbody>
+      <tr><td>0-3 s</td><td>15→13</td><td>Tempo bardzo spójne</td></tr>
+      <tr><td>3-8 s</td><td>13→8</td><td>Drobne wahania</td></tr>
+      <tr><td>8-18 s</td><td>8→3</td><td>Widoczne wahania tempa</td></tr>
+      <tr><td>>18 s</td><td>3→0</td><td>Tempo niespójne</td></tr>
+    </tbody>
+  </table>
+
+  <div class="grades">
+    <div class="grade"><div class="grade-letter" style="color:#16a34a;">A</div><div class="grade-range">≥ 93 pkt</div><div class="grade-label">Doskonały</div></div>
+    <div class="grade"><div class="grade-letter" style="color:#2563eb;">B</div><div class="grade-range">88-92 pkt</div><div class="grade-label">Dobry</div></div>
+    <div class="grade"><div class="grade-letter" style="color:#d97706;">C</div><div class="grade-range">86-87 pkt</div><div class="grade-label">Akceptowalny</div></div>
+    <div class="grade"><div class="grade-letter" style="color:#dc2626;">D</div><div class="grade-range">0-85 pkt</div><div class="grade-label">Słaby</div></div>
+  </div>
+
+  <p>Progi ocen GPS są łagodniejsze niż w HR: dokładność GPS zależy od warunków środowiskowych (chmury, budynki, drzewa) trudniejszych do kontrolowania niż optyczny sensor tętna. Wynik 93+ w GPS to naprawdę wymagające minimum przy typowej trasie miejsko-podmiejskiej.</p>
+
+  <span class="section-anchor" id="gps-korekta"></span>
+  <h3>Korekta rankingowa GPS</h3>
+
+  <div class="correction">
+    <div class="correction-icon">🛣</div>
+    <div>
+      <div class="correction-title">Bonus za dystans trasy (liniowy, maks. +0.5 pkt)</div>
+      <div class="correction-desc">Dłuższa trasa to trudniejszy egzamin dla GPS: więcej zakrętów, zmian środowiska, potencjalnych problemów z sygnałem. Bonus rośnie płynnie między 20 a 80 km, bez twardych granic. Poniżej 20 km: 0 pkt. 80 km i więcej: +0.5 pkt. Przykład: 30 km ≈ +0.08 pkt - 50 km ≈ +0.25 pkt - 80 km = +0.50 pkt.</div>
+    </div>
+  </div>
+  <a class="back-to-top" href="#top">↑ Wróć na górę</a>
+
+  <div class="separator"></div>
+
+  <!-- 5. WSPÓLNE -->
+  <span class="section-anchor" id="wspolne"></span>
+  <div class="section-label">5 - Wspólne zasady</div>
+  <h2>Co wpływa na wynik niezależnie od kategorii</h2>
+
+  <div class="info-box amber">
+    <p><strong>Warunki środowiskowe:</strong> Temperatura wpływa na pomiar optyczny tętna: w zimnie naczynia krwionośne obkurczają się, przepływ krwi do nadgarstka maleje, co pogarsza sygnał PPG. Wyniki zimowe mogą być surowsze dla sensorów optycznych. GPS jest bardziej podatny na warunki atmosferyczne, zabudowę i roślinność niż na temperaturę.</p>
+  </div>
+
+  <div class="info-box purple">
+    <p><strong>Jeden test = jedna próbka:</strong> Każde urządzenie testowane jest podczas jednego treningu. Wynik odzwierciedla zachowanie zegarka w danych warunkach, nie jest statystyczną średnią z wielu sesji. Przy powtarzaniu testów wyniki mogą się różnić, szczególnie w zakresie GPS.</p>
+  </div>
+
+  <div class="info-box blue">
+    <p><strong>Firmware:</strong> Zegarki testowane są z firmware aktualnym w dniu testu. Aktualizacje mogą zmienić algorytmy przetwarzania danych: starsze testy nie są automatycznie aktualizowane po zmianie firmware.</p>
+  </div>
+
+  <div class="info-box green">
+    <p><strong>Niezależność referencji:</strong> Polar H10 i Garmin Edge 540 są urządzeniami niezależnymi od ekosystemu testowanych zegarków. Polar H10 stosowany jest w badaniach naukowych jako punkt odniesienia. Garmin Edge jako dedykowany komputer rowerowy z montażem na kierownicy eliminuje błędy pozycjonowania typowe dla zegarków.</p>
+  </div>
+  <a class="back-to-top" href="#top">↑ Wróć na górę</a>
+
+  <div class="separator"></div>
+
+  <div class="footer">
+    <div class="footer-logo">UnaxTech - Metodologia testów</div>
+    <div class="footer-note">Dokument może się zmieniać - ostatnia aktualizacja: 30.05.2026</div>
+  </div>
+
+</div>
+</body>
+</html>
