@@ -91,6 +91,7 @@
       <ul class="toc-sub">
         <li class="toc-item"><span class="toc-num"></span><a class="toc-link" href="#gps-skladniki">Składniki oceny</a></li>
         <li class="toc-item"><span class="toc-num"></span><a class="toc-link" href="#gps-korekta">Korekty rankingowe</a></li>
+        <li class="toc-item"><span class="toc-num"></span><a class="toc-link" href="#gps-nobaro">Zegarki bez barometru</a></li>
       </ul>
       <li class="toc-item"><span class="toc-num">5</span><a class="toc-link" href="#pulapki">Pułapki interpretacyjne</a></li>
       <li class="toc-item"><span class="toc-num">6</span><a class="toc-link" href="#wspolne">Wspólne zasady</a></li>
@@ -270,7 +271,10 @@
     </div>
     <div class="comp-row">
       <div class="comp-dot" style="background:#2563eb;margin-top:5px;"></div>
-      <div><div class="comp-name">Stabilność wysokości</div><div class="comp-desc">Ocena jakości sygnału barometrycznego. Im wyższy szum barometru, tym bardziej zawyżone przewyższenie w podsumowaniu aktywności.</div></div>
+      <div>
+        <div class="comp-name">Stabilność wysokości</div>
+        <div class="comp-desc">Ocena jakości sygnału barometrycznego. Im wyższy szum barometru, tym bardziej zawyżone przewyższenie w podsumowaniu aktywności. <strong style="color:rgba(255,255,255,.6);">Zegarki bez barometru mają ten składnik wyłączony</strong> — szczegóły poniżej.</div>
+      </div>
       <div class="comp-pts" style="color:#2563eb;">★★★</div>
     </div>
     <div class="comp-row">
@@ -301,6 +305,29 @@
       <div class="correction-desc">Dłuższa trasa to trudniejszy egzamin dla GPS: więcej zakrętów, zmian środowiska, potencjalnych problemów z sygnałem. System analityczny dynamicznie premiuje testy prowadzone na dłuższych dystansach, które lepiej weryfikują możliwości zegarka.</div>
     </div>
   </div>
+
+  <span class="section-anchor" id="gps-nobaro"></span>
+  <h3>Zegarki bez barometru 📡</h3>
+
+  <p>Część zegarków sportowych nie posiada barometru — wysokość pochodzi wyłącznie z GPS poziomego, co na trasach płaskich daje bardzo stabilny sygnał pionowy. Ocenianie tych zegarków w składniku "Stabilność wysokości" byłoby niesprawiedliwe w dwie strony jednocześnie: zegarek dostawałby sztucznie zawyżone punkty za "zerowy szum" na płaskiej trasie, ale byłby nieuczciwie porównywany z zegarkami z barometrem na trasach z przewyższeniami.</p>
+
+  <div class="info-box amber">
+    <p><strong>Zasada:</strong> Zegarki bez barometru mają składnik "Stabilność wysokości" <strong>całkowicie wyłączony</strong>. Wynik końcowy jest obliczany z pozostałych trzech składników (dystans + ślad + tempo, max 75 pkt) i normalizowany do skali 100 pkt. W rankingu takie zegarki oznaczone są symbolem 📡.</p>
+    <p style="margin-top:8px;">Wyniki zegarków GPS-only są <strong>porównywalne między sobą</strong>, ale przy porównaniu z zegarkami barometrycznymi należy brać poprawkę: brak barometru to realne ograniczenie użytkowe, szczególnie w górach.</p>
+  </div>
+
+  <div class="correction">
+    <div class="correction-icon">📡</div>
+    <div>
+      <div class="correction-title">Normalizacja dla zegarków GPS-only</div>
+      <div class="correction-desc">Zegarek bez barometru jest oceniany w trzech składnikach zamiast czterech. Suma punktów z tych trzech składników (max 75 pkt) jest mnożona przez współczynnik 100/75, co daje wynik w tej samej skali 0–100. Dzięki temu zły GPS-only nadal dostaje niski wynik, a dobry GPS-only jest uczciwie nagradzany za to co faktycznie potrafi zmierzyć.</div>
+    </div>
+  </div>
+
+  <div class="info-box blue">
+    <p><strong>Autodetekcja:</strong> Program analityczny automatycznie wykrywa zegarki GPS-only na podstawie danych w pliku GPX — nie wymaga ręcznego oznaczania. Amazfit i inne marki zapisują w pliku charakterystyczny znacznik braku barometru, który jest rozpoznawany i obsługiwany automatycznie.</p>
+  </div>
+
   <a class="back-to-top" href="#top">↑ Wróć na górę</a>
 
   <div class="separator"></div>
@@ -325,6 +352,11 @@
   <div class="info-box amber">
     <p><strong>"Świetna dokładność" przy HIIT nie oznacza ideału:</strong> Progi ocen są inne dla treningu spokojnego i interwałowego. "Świetna" przy HIIT to nadal kilka bpm błędu - w kontekście stref tętna jest to znaczący błąd. Czytaj wyniki jako "świetna jak na interwały" - nie "świetna ogólnie".</p>
   </div>
+
+  <div class="info-box amber">
+    <p><strong>Wynik GPS-only (📡) nie jest w pełni porównywalny z wynikiem barometrycznym:</strong> Normalizacja sprawia, że skala jest ta sama, ale zegarek GPS-only nie był oceniany w składniku wysokości. Na trasach z dużymi przewyższeniami jego rzeczywista użyteczność może być niższa niż sugeruje wynik rankingowy.</p>
+  </div>
+
   <a class="back-to-top" href="#top">↑ Wróć na górę</a>
 
   <div class="separator"></div>
@@ -359,7 +391,7 @@
 
   <div class="footer">
     <div class="footer-logo">UnaxTech - Metodologia testów</div>
-    <div class="footer-note">Dokument może się zmieniać - ostatnia aktualizacja: 30.05.2026</div>
+    <div class="footer-note">Dokument może się zmieniać - ostatnia aktualizacja: 13.06.2026</div>
   </div>
 
 </div>
